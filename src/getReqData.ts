@@ -8,8 +8,11 @@ export function getReqData(req: any) {
       req.on("end", () => {
         resolve(body);
       });
-    } catch (error) {
-      reject(error);
+    } catch {
+      resolve("");
     }
+  }).catch(() => {
+    console.log("WE ARE IN CATCH");
+    return "";
   });
 }

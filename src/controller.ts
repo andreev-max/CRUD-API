@@ -1,38 +1,148 @@
-import { users } from "./data";
 import { v4 } from "uuid";
-import { DataForNewUser } from "./interfaces";
+import { User } from "./interfaces";
+import { UUID_REGEXP } from "./constants";
 
-export async function getUsers() {
-  return new Promise((resolve, reject) => resolve(users));
+const users: User[] = [];
+
+export function getAllUsers() {
+  try {
+    return {
+      statusCode: 200,
+      data: users,
+    };
+  } catch {
+    return {
+      statusCode: 500,
+      message: "Something went wrong on the server",
+    };
+  }
 }
 
-export async function getUserById(uuid: string) {
-  return new Promise((resolve, reject) => {
-    const foundUser = users.find((user) => user.id === uuid);
+export function createUser(reqData: string) {
+  try {
+    console.log("newUSER: ", reqData);
+    const userData = reqData ? JSON.parse(reqData) : {};
 
-    if (foundUser) {
-      resolve(foundUser);
-    } else {
-      reject(`User with id ${uuid} not found`);
-    }
-  });
-}
-
-export async function createUser(newUser: DataForNewUser) {
-  console.log(newUser);
-  return new Promise((resolve, reject) => {
     if (
-      typeof newUser?.age === "number" &&
-      typeof newUser?.username === "string" &&
-      typeof newUser?.hobbies === "object"
+      typeof userData?.age === "number" &&
+      typeof userData?.username === "string" &&
+      typeof userData?.hobbies === "object"
     ) {
-      const createdUser = { ...newUser, id: v4() };
-      users.push({ ...newUser, id: v4() });
-      resolve(createdUser);
+      const createdUser = { ...userData, id: v4() };
+      users.push(createdUser);
+      return { statusCode: 201, data: createdUser };
     } else {
-      reject(false);
+      return {
+        statusCode: 400,
+        message: "Incorrect Data for creating new user",
+      };
     }
-  }).catch(() => {
-    return false;
-  });
+  } catch {
+    return {
+      statusCode: 500,
+      message: "Something went wrong on the server",
+    };
+  }
+}
+
+export function getUserById(uuid: string) {
+  try {
+    console.log(uuid);
+    console.log(uuid.match(UUID_REGEXP));
+    if (uuid.match(UUID_REGEXP)) {
+      const foundUser = users.find((user) => user.id === uuid);
+      if (foundUser) {
+        return {
+          statusCode: 200,
+          data: foundUser,
+        };
+      } else {
+        return {
+          statusCode: 404,
+          message: "User with this id does not exist",
+        };
+      }
+    } else {
+      return { statusCode: 400, message: "User's id is invalid - not uuid" };
+    }
+  } catch {
+    return {
+      statusCode: 500,
+      message: "Something went wrong on the server",
+    };
+  }
+}
+
+export function updateUserById(uuid: string, reqData: string) {
+  try {
+    console.log(reqData);
+    const userData = reqData ? JSON.parse(reqData) : {};
+
+    if (
+      typeof userData?.age === "number" &&
+      typeof userData?.username === "string" &&
+      typeof userData?.hobbies === "object"
+    ) {
+      if (uuid.match(UUID_REGEXP)) {
+        const foundUser = users.find((user) => user.id === uuid);
+        const foundUserIndex = users.findIndex((user) => user.id === uuid);
+        if (foundUser) {
+          console.log(users);
+          users.splice(foundUserIndex, 1, { ...foundUser, ...userData });
+          console.log(users);
+          return {
+            statusCode: 200,
+            data: { ...foundUser, ...userData },
+          };
+        } else {
+          return {
+            statusCode: 404,
+            message: "User with this id does not exist",
+          };
+        }
+      } else {
+        return { statusCode: 400, message: "User's id is invalid - not uuid" };
+      }
+    } else {
+      return {
+        statusCode: 400,
+        message: "Incorrect Data for creating new user",
+      };
+    }
+  } catch {
+    return {
+      statusCode: 500,
+      message: "Something went wrong on the server",
+    };
+  }
+}
+
+export function deleteUserById(uuid: string) {
+  try {
+    console.log(uuid);
+    console.log(uuid.match(UUID_REGEXP));
+    if (uuid.match(UUID_REGEXP)) {
+      const foundUserIndex = users.findIndex((user) => user.id === uuid);
+      console.log("FOUND INDEX:", foundUserIndex);
+      if (foundUserIndex > -1) {
+        users.splice(foundUserIndex, 1);
+        return {
+          statusCode: 204,
+          message: "User with this id has been deleted from database",
+        };
+      } else {
+        return {
+          statusCode: 404,
+          message: "User with this id does not exist",
+        };
+      }
+    } else {
+      return { statusCode: 400, message: "User's id is invalid - not uuid" };
+    }
+  } catch {
+    return {
+      statusCode: 500,
+      message: "Something went wrong on the server",
+    };
+  }
 }

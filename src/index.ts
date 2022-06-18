@@ -1,36 +1,61 @@
 import http from "http";
 import "dotenv/config";
 
-import { users } from "./data";
 import { getReqData } from "./getReqData";
-import { createUser } from "./controller";
-import { DataForNewUser } from "./interfaces";
+import {
+  createUser,
+  deleteUserById,
+  getAllUsers,
+  getUserById,
+  updateUserById,
+} from "./controller";
+import { URL_REGEXP } from "./constants";
 
 const PORT = process.env.PORT || 3000;
 
-const server = http.createServer(async function (req, res) {
+const server = http.createServer(async (req, res) => {
   console.log(req.url);
   console.log(req.method);
   if (req.url === "/api/users" && req.method === "GET") {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(users));
+    console.log("WE ARE IN GET");
+    const { statusCode, ...data } = getAllUsers();
+    res.writeHead(statusCode, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
   } else if (req.url === "/api/users" && req.method === "POST") {
-    const userData = (await getReqData(req)) as string;
-    console.log("userData:", userData);
-    console.log(typeof userData);
-    const newUser = await createUser(JSON.parse(userData));
-    if (newUser) {
-      res.writeHead(201, { "Content-Type": "application/json" });
-      res.end(JSON.stringify(newUser));
-    } else {
-      res.end(JSON.stringify({ message: "Incorrect Data" }));
-    }
+    console.log("WE ARE IN POST");
+    const reqData = (await getReqData(req)) as string;
+    console.log("reqData - ", reqData);
+    const { statusCode, ...data } = createUser(reqData);
+    res.writeHead(statusCode, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
+  } else if (req.url && req.url?.match(URL_REGEXP) && req.method === "GET") {
+    console.log("WE ARE IN GET BY ID");
+    const userUuid = req.url.split("/")[3];
+    console.log("userUuid:", userUuid);
+    const { statusCode, ...data } = getUserById(userUuid);
+    res.writeHead(statusCode, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
+  } else if (req.url && req.url?.match(URL_REGEXP) && req.method === "PUT") {
+    console.log("WE ARE IN PUT");
+    const userUuid = req.url.split("/")[3];
+    const reqData = (await getReqData(req)) as string;
+    console.log("userUuid:", userUuid);
+    const { statusCode, ...data } = updateUserById(userUuid, reqData);
+    res.writeHead(statusCode, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
+  } else if (req.url && req.url?.match(URL_REGEXP) && req.method === "DELETE") {
+    console.log("WE ARE IN DELETE");
+    const userUuid = req.url.split("/")[3];
+    console.log("userUuid:", userUuid);
+    const { statusCode, ...data } = deleteUserById(userUuid);
+    res.writeHead(statusCode, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
   } else {
     res.writeHead(404, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ message: "Route not found!!!" }));
+    res.end(JSON.stringify({ message: "Unfortunatelly, route not found" }));
   }
 });
 
-server.listen(PORT);
-
-console.log(`Node.js web server at port ${PORT} is running.`);
+server.listen(PORT, () =>
+  console.log(`Node.js web server at port ${PORT} is running.`)
+);
