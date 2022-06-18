@@ -33,7 +33,7 @@ const config: Configuration = {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
   },
-  // devServer,
+  target: "node",
 };
 
 export default config;
