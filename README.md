@@ -1,7 +1,6 @@
 # CRUD-API
 the third task on NodeJS course
 
-
 # To run the App please you the following commands:
 
 > **"start:dev"** - for running the app in development mode using *nodemon*,
@@ -13,8 +12,8 @@ the third task on NodeJS course
 > **"test"** - for running 3 scenarios of the tests using *jest* and *supertest*.
 
 
-### For store the data of users the app creates an empty array of users and save there data according to the interface "User".
+###### For store the data of users the app creates an empty array of users and save there data according to the interface "User".
 
-### For creating unique id the app use uuid.
+###### For creating unique id the app use uuid.
 
-### Also this app uses eslint for readibility.
+###### Also this app uses eslint for readibility.
