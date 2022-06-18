@@ -12,7 +12,6 @@ export function getReqData(req: any) {
       resolve("");
     }
   }).catch(() => {
-    console.log("WE ARE IN CATCH");
     return "";
   });
 }

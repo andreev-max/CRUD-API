@@ -20,7 +20,6 @@ export function getAllUsers() {
 
 export function createUser(reqData: string) {
   try {
-    console.log("newUSER: ", reqData);
     const userData = reqData ? JSON.parse(reqData) : {};
 
     if (
@@ -47,8 +46,6 @@ export function createUser(reqData: string) {
 
 export function getUserById(uuid: string) {
   try {
-    console.log(uuid);
-    console.log(uuid.match(UUID_REGEXP));
     if (uuid.match(UUID_REGEXP)) {
       const foundUser = users.find((user) => user.id === uuid);
       if (foundUser) {
@@ -75,7 +72,6 @@ export function getUserById(uuid: string) {
 
 export function updateUserById(uuid: string, reqData: string) {
   try {
-    console.log(reqData);
     const userData = reqData ? JSON.parse(reqData) : {};
 
     if (
@@ -87,9 +83,7 @@ export function updateUserById(uuid: string, reqData: string) {
         const foundUser = users.find((user) => user.id === uuid);
         const foundUserIndex = users.findIndex((user) => user.id === uuid);
         if (foundUser) {
-          console.log(users);
           users.splice(foundUserIndex, 1, { ...foundUser, ...userData });
-          console.log(users);
           return {
             statusCode: 200,
             data: { ...foundUser, ...userData },
@@ -119,11 +113,8 @@ export function updateUserById(uuid: string, reqData: string) {
 
 export function deleteUserById(uuid: string) {
   try {
-    console.log(uuid);
-    console.log(uuid.match(UUID_REGEXP));
     if (uuid.match(UUID_REGEXP)) {
       const foundUserIndex = users.findIndex((user) => user.id === uuid);
-      console.log("FOUND INDEX:", foundUserIndex);
       if (foundUserIndex > -1) {
         users.splice(foundUserIndex, 1);
         return {
